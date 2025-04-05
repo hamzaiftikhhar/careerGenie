@@ -1,1 +1,62 @@
-
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .footer {
+            border-top: 1px solid #eee;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ project_name }}</h1>
+    </div>
+    <div class="content">
+        <p>Hi {{ username }},</p>
+        <p>Thank you for registering with our Career Counseling & Scholarship Platform. To complete your registration and verify your email address, please click on the button below:</p>
+        <div style="text-align: center;">
+            <a href="{{ verification_url }}" class="button">Verify Email</a>
+        </div>
+        <p>If the button doesn't work, you can also copy and paste the following link in your browser:</p>
+        <p>{{ verification_url }}</p>
+        <p>This link will expire in 48 hours.</p>
+        <p>If you didn't sign up for an account, you can safely ignore this email.</p>
+    </div>
+    <div class="footer">
+        <p>&copy; {{ project_name }}. All rights reserved.</p>
+        <p>This is an automated email, please do not reply.</p>
+    </div>
+</body>
+</html>
