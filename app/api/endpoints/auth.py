@@ -72,4 +72,102 @@ def login(
             detail="Inactive user"
         )
     
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        subject=authenticated_user.id, expires_delta=access_token_expires
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/verify-email", response_model=UserSchema)
+def verify_email(
+    *,
+    db: Session = Depends(get_db),
+    verification_data: EmailVerificationRequest = Body(...),
+) -> Any:
+    """
+    Verify user email with token.
+    """
+    verification_record = verification.verify_token(
+        db, 
+        token=verification_data.token,
+        verification_type=VerificationType.EMAIL_VERIFICATION
+    )
+    
+    if not verification_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token",
+        )
+    
+    # Mark user as verified
+    verified_user = user.mark_verified(db, user_id=verification_record.user_id)
+    
+    # Mark verification token as used
+    verification.mark_as_used(db, verification_id=verification_record.id)
+    
+    return verified_user
+
+
+@router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
+def forgot_password(
+    *,
+    db: Session = Depends(get_db),
+    reset_request: PasswordResetRequest = Body(...),
+) -> Any:
+    """
+    Send password reset email.
+    """
+    existing_user = user.get_by_email(db, email=reset_request.email)
+    if existing_user:
+        # Create password reset token
+        reset_token = verification.create_password_reset(db, user_id=existing_user.id)
+        
+        # Send password reset email
+        send_reset_password_email(existing_user.email, reset_token.token)
+    
+    # Always return success to prevent email enumeration
+    return {"message": "If the email exists, a password reset link has been sent"}
+
+
+@router.post("/reset-password", response_model=UserSchema)
+def reset_password(
+    *,
+    db: Session = Depends(get_db),
+    reset_data: PasswordResetConfirm = Body(...),
+) -> Any:
+    """
+    Reset user password with token.
+    """
+    verification_record = verification.verify_token(
+        db, 
+        token=reset_data.token,
+        verification_type=VerificationType.PASSWORD_RESET
+    )
+    
+    if not verification_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset token",
+        )
+    
+    # Update user password
+    db_user = user.get(db, id=verification_record.user_id)
+    update_data = {"password": reset_data.new_password}
+    updated_user = user.update(db, db_obj=db_user, obj_in=update_data)
+    
+    # Mark verification token as used
+    verification.mark_as_used(db, verification_id=verification_record.id)
+    
+    return updated_user
+
+
+@router.post("/verify-session", response_model=UserSchema)
+def verify_session(
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Verify user's active session.
+    """
+    return current_user
