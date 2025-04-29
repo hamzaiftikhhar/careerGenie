@@ -15,25 +15,29 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         """
         CRUD object with default methods to Create, Read, Update, Delete (CRUD).
-        
-        **Parameters**
-        
-        * `model`: A SQLAlchemy model class
-        * `schema`: A Pydantic model (schema) class
         """
         self.model = model
 
     def get(self, db: Session, id: Any) -> Optional[ModelType]:
+        """
+        Get object by id.
+        """
         return db.query(self.model).filter(self.model.id == id).first()
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[ModelType]:
+        """
+        Get multiple objects.
+        """
         return db.query(self.model).offset(skip).limit(limit).all()
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
+        """
+        Create new object.
+        """
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)  # type: ignore
+        db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -46,6 +50,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
+        """
+        Update object.
+        """
         obj_data = jsonable_encoder(db_obj)
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -60,6 +67,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     def remove(self, db: Session, *, id: int) -> ModelType:
+        """
+        Remove object.
+        """
         obj = db.query(self.model).get(id)
         db.delete(obj)
         db.commit()

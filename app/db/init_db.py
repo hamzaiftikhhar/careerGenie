@@ -1,39 +1,24 @@
 import logging
-import sys
-from pathlib import Path
+from sqlalchemy.orm import Session
 
-# Add parent directory to sys.path to allow importing app modules
-sys.path.append(str(Path(__file__).parent.parent))
-
-from app.db.session import SessionLocal
-from app.db.init_db import init_db
-from app.db.base import Base
-from app.db.session import engine
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from app.crud.user import user
+from app.schemas.user import UserCreate
+from app.core.config import settings
 
 
-def init() -> None:
-    """Initialize the database."""
-    db = SessionLocal()
-    try:
-        # Create tables
-        Base.metadata.create_all(bind=engine)
-        logger.info("Created database tables")
-        
-        # Initialize data
-        init_db(db)
-        logger.info("Database initialized successfully")
-    finally:
-        db.close()
-
-
-def main() -> None:
-    logger.info("Initializing database")
-    init()
-    logger.info("Database initialization completed")
-
-
-if __name__ == "__main__":
-    main()
+def init_db(db: Session) -> None:
+    """Initialize the database with a first superuser."""
+    # Check if we need to create a first superuser
+    if settings.FIRST_SUPERUSER_EMAIL and settings.FIRST_SUPERUSER_PASSWORD:
+        superuser = user.get_by_email(db, email=settings.FIRST_SUPERUSER_EMAIL)
+        if not superuser:
+            user_in = UserCreate(
+                email=settings.FIRST_SUPERUSER_EMAIL,
+                password=settings.FIRST_SUPERUSER_PASSWORD,
+                is_superuser=True,
+                is_verified=True
+            )
+            superuser = user.create(db, obj_in=user_in)
+            logging.info(f"Created first superuser: {superuser.email}")
+        else:
+            logging.info("First superuser already exists in database")

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification</title>
     <style>
         body {
@@ -13,50 +13,61 @@
             margin: 0 auto;
             padding: 20px;
         }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
         .header {
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .content {
-            padding: 20px 0;
+            margin-bottom: 20px;
         }
         .button {
             display: inline-block;
             background-color: #4CAF50;
             color: white;
-            padding: 12px 24px;
             text-decoration: none;
-            border-radius: 4px;
-            margin: 20px 0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
         }
         .footer {
-            border-top: 1px solid #eee;
-            padding: 20px 0;
-            text-align: center;
+            margin-top: 20px;
             font-size: 12px;
             color: #777;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>{{ project_name }}</h1>
-    </div>
-    <div class="content">
-        <p>Hi {{ username }},</p>
-        <p>Thank you for registering with our Career Counseling & Scholarship Platform. To complete your registration and verify your email address, please click on the button below:</p>
-        <div style="text-align: center;">
-            <a href="{{ verification_url }}" class="button">Verify Email</a>
+    <div class="container">
+        <div class="header">
+            <h2>{{ project_name }}</h2>
         </div>
-        <p>If the button doesn't work, you can also copy and paste the following link in your browser:</p>
+        
+        <p>Hello {{ username }},</p>
+        
+        <p>Thank you for registering with our platform. To complete your registration and verify your email address, please click the button below:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ verification_url }}" class="button">Verify Email Address</a>
+        </p>
+        
+        <p>If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
+        
         <p>{{ verification_url }}</p>
+        
         <p>This link will expire in 48 hours.</p>
-        <p>If you didn't sign up for an account, you can safely ignore this email.</p>
-    </div>
-    <div class="footer">
-        <p>&copy; {{ project_name }}. All rights reserved.</p>
-        <p>This is an automated email, please do not reply.</p>
+        
+        <p>If you did not register for an account, please ignore this email.</p>
+        
+        <p>Best regards,<br>
+        The {{ project_name }} Team</p>
+        
+        <div class="footer">
+            <p>This is an automated message, please do not reply to this email.</p>
+        </div>
     </div>
 </body>
 </html>
