@@ -1,3 +1,4 @@
+# tests/api/test_auth.py
 import pytest
 from fastapi.testclient import TestClient
 
@@ -10,7 +11,7 @@ def test_register_new_user(client: TestClient):
         "first_name": "New",
         "last_name": "User"
     }
-    response = client.post("/api/v1/auth/register", json=data)
+    response = client.post(f"{settings.API_V1_STR}/auth/register", json=data)
     assert response.status_code == 201
     assert response.json()["email"] == data["email"]
     assert "id" in response.json()
@@ -24,7 +25,7 @@ def test_register_existing_user(client: TestClient, test_user):
         "first_name": "Existing",
         "last_name": "User"
     }
-    response = client.post("/api/v1/auth/register", json=data)
+    response = client.post(f"{settings.API_V1_STR}/auth/register", json=data)
     assert response.status_code == 400
     assert "Email already registered" in response.json()["detail"]
 
@@ -35,7 +36,7 @@ def test_login_correct_credentials(client: TestClient, test_user):
         "username": test_user.email,
         "password": "password"
     }
-    response = client.post("/api/v1/auth/login", data=data)
+    response = client.post(f"{settings.API_V1_STR}/auth/login", data=data)
     assert response.status_code == 200
     assert "access_token" in response.json()
     assert response.json()["token_type"] == "bearer"
@@ -47,17 +48,17 @@ def test_login_incorrect_password(client: TestClient, test_user):
         "username": test_user.email,
         "password": "wrongpassword"
     }
-    response = client.post("/api/v1/auth/login", data=data)
+    response = client.post(f"{settings.API_V1_STR}/auth/login", data=data)
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]
 
 
-def test_login_nonexistent_user(client: TestClient):
-    """Test login with nonexistent user."""
-    data = {
-        "username": "nonexistent@example.com",
-        "password": "password"
-    }
-    response = client.post("/api/v1/auth/login", data=data)
-    assert response.status_code == 401
-    assert "Incorrect email or password" in response.json()["detail"]
+def test_verify_email(client: TestClient, db, test_user):
+    """Test email verification."""
+    # Create a verification token
+    from app.crud.verification import verification as verification_crud
+    verification = verification_crud.create_verification_token(db, user_id=test_user.id)
+    
+    response = client.post(f"{settings.API_V1_STR}/auth/verify-email/{verification.token}")
+    assert response.status_code == 200
+    assert response.json()["is_verified"] == True

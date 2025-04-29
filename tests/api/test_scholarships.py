@@ -1,10 +1,11 @@
+# tests/api/test_scholarships.py
 import pytest
 from datetime import date
 from fastapi.testclient import TestClient
 from app.db.models.scholarship import Scholarship
 
 
-def test_create_scholarship(authorized_client: TestClient, db):
+def test_create_scholarship(authorized_client: TestClient, db, test_user):
     """Test creating a new scholarship."""
     data = {
         "title": "Test Scholarship",
@@ -16,16 +17,13 @@ def test_create_scholarship(authorized_client: TestClient, db):
         "country": "Test Country",
         "education_level": "Undergraduate"
     }
-    response = authorized_client.post("/api/v1/scholarships/", json=data)
+    response = authorized_client.post(
+        f"{settings.API_V1_STR}/scholarships/", 
+        json=data
+    )
     assert response.status_code == 201
     assert response.json()["title"] == data["title"]
     assert "id" in response.json()
-    
-    # Clean up
-    scholarship = db.query(Scholarship).filter(Scholarship.title == data["title"]).first()
-    if scholarship:
-        db.delete(scholarship)
-        db.commit()
 
 
 def test_get_scholarships(client: TestClient, db, test_user):
@@ -47,9 +45,10 @@ def test_get_scholarships(client: TestClient, db, test_user):
     db.refresh(scholarship)
     
     # Get scholarships
-    response = client.get("/api/v1/scholarships/")
+    response = client.get(f"{settings.API_V1_STR}/scholarships/")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
+    assert len(response.json()) > 0
     
     # Clean up
     db.delete(scholarship)
@@ -75,7 +74,7 @@ def test_get_scholarship_by_id(client: TestClient, db, test_user):
     db.refresh(scholarship)
     
     # Get scholarship by ID
-    response = client.get(f"/api/v1/scholarships/{scholarship.id}")
+    response = client.get(f"{settings.API_V1_STR}/scholarships/{scholarship.id}")
     assert response.status_code == 200
     assert response.json()["id"] == scholarship.id
     assert response.json()["title"] == scholarship.title
@@ -108,7 +107,10 @@ def test_update_scholarship(authorized_client: TestClient, db, test_user):
         "title": "Updated Test Scholarship",
         "amount": 6000.0
     }
-    response = authorized_client.put(f"/api/v1/scholarships/{scholarship.id}", json=update_data)
+    response = authorized_client.put(
+        f"{settings.API_V1_STR}/scholarships/{scholarship.id}", 
+        json=update_data
+    )
     assert response.status_code == 200
     assert response.json()["title"] == update_data["title"]
     assert response.json()["amount"] == update_data["amount"]
@@ -137,7 +139,7 @@ def test_delete_scholarship(authorized_client: TestClient, db, test_user):
     db.refresh(scholarship)
     
     # Delete scholarship
-    response = authorized_client.delete(f"/api/v1/scholarships/{scholarship.id}")
+    response = authorized_client.delete(f"{settings.API_V1_STR}/scholarships/{scholarship.id}")
     assert response.status_code == 204
     
     # Check if scholarship is deleted
