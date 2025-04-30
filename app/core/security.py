@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 from jose import jwt
 from passlib.context import CryptContext
+import secrets
+import string
 
 from app.core.config import settings
 
@@ -11,10 +13,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
-    """
-    Create a JWT access token.
-    """
+def create_access_token(
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None
+) -> str:
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -27,14 +28,19 @@ def create_access_token(subject: Union[str, Any], expires_delta: timedelta = Non
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a password against a hash.
-    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """
-    Hash a password.
-    """
     return pwd_context.hash(password)
+
+
+def generate_verification_token() -> str:
+    """Generate a random token for email verification or password reset"""
+    return secrets.token_urlsafe(32)
+
+
+def generate_password() -> str:
+    """Generate a random secure password"""
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*()"
+    return ''.join(secrets.choice(alphabet) for _ in range(12))
