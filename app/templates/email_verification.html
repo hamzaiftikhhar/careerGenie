@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <title>Email Verification</title>
     <style>
         body {
@@ -14,59 +13,60 @@
             padding: 20px;
         }
         .container {
-            background-color: #f9f9f9;
+            background-color: #f8f9fa;
             border-radius: 5px;
             padding: 20px;
-            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .header {
             text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
             margin-bottom: 20px;
         }
         .button {
             display: inline-block;
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             text-decoration: none;
             padding: 10px 20px;
             border-radius: 5px;
-            font-weight: bold;
+            margin: 20px 0;
         }
         .footer {
-            margin-top: 20px;
             font-size: 12px;
-            color: #777;
+            color: #6c757d;
             text-align: center;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h2>{{ project_name }}</h2>
+            <h2>Verify Your Email Address</h2>
         </div>
         
         <p>Hello {{ username }},</p>
         
-        <p>Thank you for registering with our platform. To complete your registration and verify your email address, please click the button below:</p>
+        <p>Thank you for registering! Please click the button below to verify your email address:</p>
         
-        <p style="text-align: center;">
-            <a href="{{ verification_url }}" class="button">Verify Email Address</a>
-        </p>
+        <div style="text-align: center;">
+            <a href="{{ verification_link }}" class="button">Verify Email</a>
+        </div>
         
-        <p>If the button above doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
         
-        <p>{{ verification_url }}</p>
+        <p>{{ verification_link }}</p>
         
         <p>This link will expire in 48 hours.</p>
         
-        <p>If you did not register for an account, please ignore this email.</p>
-        
-        <p>Best regards,<br>
-        The {{ project_name }} Team</p>
+        <p>If you did not register on our platform, please ignore this email.</p>
         
         <div class="footer">
-            <p>This is an automated message, please do not reply to this email.</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
         </div>
     </div>
 </body>

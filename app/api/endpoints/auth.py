@@ -112,7 +112,7 @@ def verify_email(
     return db_user
 
 
-@router.post("/request-password-reset", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/request-password-reset", status_code=status.HTTP_202_ACCEPTED)
 def request_password_reset(
     email: str = Body(..., embed=True),
     db: Session = Depends(get_db),
