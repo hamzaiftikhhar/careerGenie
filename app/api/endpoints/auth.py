@@ -38,7 +38,7 @@ def register(
     new_user = user.create(db, obj_in=user_in)
     
     # Create verification token
-    verification_token = verification_crud.create_verification_token(db, user_id=new_user.id)
+    verification_token = verification_crud.create_email_verification(db, user_id=new_user.id)
     
     # Send verification email
     send_verification_email(
@@ -123,7 +123,7 @@ def request_password_reset(
     db_user = user.get_by_email(db, email=email)
     if db_user:
         # Create password reset token
-        reset_token = verification_crud.create_password_reset_token(db, user_id=db_user.id)
+        reset_token = verification_crud.create_password_reset(db, user_id=db_user.id)
         
         # Send password reset email
         send_password_reset_email(

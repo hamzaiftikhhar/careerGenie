@@ -57,7 +57,7 @@ def test_verify_email(client: TestClient, db, test_user):
     """Test email verification."""
     # Create a verification token
     from app.crud.verification import verification as verification_crud
-    verification = verification_crud.create_verification_token(db, user_id=test_user.id)
+    verification = verification_crud.create_email_verification(db, user_id=test_user.id)
     
     response = client.post(f"{settings.API_V1_STR}/auth/verify-email/{verification.token}")
     assert response.status_code == 200
