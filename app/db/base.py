@@ -1,7 +1,6 @@
-# Import all the models, so that Base has them before being imported by Alembic
-from app.db.session import Base
+from app.db.base_class import Base
 
-# Import all models here
+# Register your models
 from app.db.models.user import User
 from app.db.models.verification import Verification
 from app.db.models.scholarship import Scholarship
